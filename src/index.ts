@@ -1,12 +1,13 @@
 /* eslint-disable camelcase */
 
+import fs from 'fs'
 import path from 'path'
-import relative from 'require-relative'
+// import relative from 'require-relative'
 import { createFilter } from '@rollup/pluginutils'
-import { compile } from 'rastree/bin/compile'
+import { compiler } from '@rastree/compiler'
 
 // const PREFIX = '[rollup-plugin-rease]'
-const pkg_export_errors = new Set()
+// const pkg_export_errors = new Set()
 
 // const plugin_options = new Set([
 //   'emitCss',
@@ -18,12 +19,13 @@ const pkg_export_errors = new Set()
 // ])
 
 export default (options: { [key: string]: any } = {}): any => {
-  const { compilerOptions = {}, ...rest } = options
-  const extensions = rest.extensions || ['.rease']
-  const filter = createFilter(rest.include, rest.exclude)
+  const extensions = options.extensions ||
+    ['.rease', '.rease.js', '.rease.ts', '.rease.jsx', '.rease.tsx']
+  const filter = createFilter(options.include, options.exclude)
 
-  compilerOptions.format = 'esm'
-  console.log('compilerOptions', compilerOptions)
+  if (options.env !== 'server') options.env = 'client'
+
+  console.log('reaseCompilerOptions', options)
 
   // for (const key in rest) {
   //   if (plugin_options.has(key)) continue
@@ -33,8 +35,8 @@ export default (options: { [key: string]: any } = {}): any => {
   // }
 
   // [filename]:[chunk]
-  const cache_emit = new Map()
-  const { onwarn, emitCss = true } = rest
+  // const cache_emit = new Map()
+  // const { onwarn, emitCss = true } = rest
 
   // if (emitCss) {
   //   if (compilerOptions.css) {
@@ -48,68 +50,78 @@ export default (options: { [key: string]: any } = {}): any => {
   return {
     name: 'rease',
 
-    // eslint-disable-next-line consistent-return
-    resolveId(importee: string, importer?: string): any {
-      // console.log('resolveId', [importee, importer])
+    // // eslint-disable-next-line consistent-return
+    // resolveId(importee: string, importer?: string): any {
+    //   // console.log('resolveId', [importee, importer])
 
-      if (cache_emit.has(importee)) return importee
-      if (
-        !importer ||
-        importee[0] === '.' ||
-        importee[0] === '\0' ||
-        path.isAbsolute(importee)
-      ) {
-        return null
-      }
+    //   if (cache_emit.has(importee)) return importee
+    //   if (
+    //     !importer ||
+    //     importee[0] === '.' ||
+    //     importee[0] === '\0' ||
+    //     path.isAbsolute(importee)
+    //   ) {
+    //     return null
+    //   }
 
-      // if this is a bare import, see if there's a valid pkg.svelte
-      const parts = importee.split('/')
+    //   // if this is a bare import, see if there's a valid pkg.svelte
+    //   const parts = importee.split('/')
 
-      let dir,
-        pkg,
-        name = parts.shift()
-      if (name && name[0] === '@') {
-        name += `/${parts.shift()}`
-      }
+    //   let dir,
+    //     pkg,
+    //     name = parts.shift()
+    //   if (name && name[0] === '@') {
+    //     name += `/${parts.shift()}`
+    //   }
 
-      try {
-        const file = `${name}/package.json`
-        const resolved = relative.resolve(file, path.dirname(importer))
-        dir = path.dirname(resolved)
-        // eslint-disable-next-line security/detect-non-literal-require
-        pkg = require(resolved)
-      } catch (err) {
-        if (err.code === 'MODULE_NOT_FOUND') return null
-        if (err.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
-          pkg_export_errors.add(name)
-          return null
-        }
-        throw err
-      }
+    //   try {
+    //     const file = `${name}/package.json`
+    //     const resolved = relative.resolve(file, path.dirname(importer))
+    //     dir = path.dirname(resolved)
+    //     // eslint-disable-next-line security/detect-non-literal-require
+    //     pkg = require(resolved)
+    //   } catch (err) {
+    //     if (err.code === 'MODULE_NOT_FOUND') return null
+    //     if (err.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED') {
+    //       pkg_export_errors.add(name)
+    //       return null
+    //     }
+    //     throw err
+    //   }
 
-      // use pkg.svelte
-      if (parts.length === 0 && pkg.svelte) {
-        return path.resolve(dir, pkg.svelte)
-      }
-    },
+    //   // use pkg.svelte
+    //   if (parts.length === 0 && pkg.svelte) {
+    //     return path.resolve(dir, pkg.svelte)
+    //   }
+    // },
 
-    load(id: any): any {
-      return cache_emit.get(id) || null
-    },
+    // load(id: any): any {
+    //   return cache_emit.get(id) || null
+    // },
 
     // eslint-disable-next-line require-await
-    async transform(code: string, id: string): Promise<any> {
+    transform(code: string, id: string): string {
       if (!filter(id)) return null
-
-      const extension = path.extname(id)
-      if (!~extensions.indexOf(extension)) return null
-
+      if (!extensions.some((v) => id.endsWith(v))) return null
+      console.log(id)
       // const dependencies = []
       const filename = path.relative(process.cwd(), id)
       // const svelte_options = { ...compilerOptions, filename }
 
-      const compiled = compile({ code, input: filename, debug: true })
-      return compiled.codeClient
+      const compiled = compiler(code, {
+        env : options.env,
+        salt: filename
+      })
+
+      if (options.debug) {
+        const a = filename.split('.')
+        a.splice(-1, 0, options.env)
+        const data = path.parse(a.join('.'))
+        data.base = '__' + data.base
+        fs.writeFileSync(path.join(data.dir, data.base), compiled)
+      }
+
+      return compiled
 
       // ;(compiled.warnings || []).forEach((warning) => {
       //   if (!emitCss && warning.code === 'css-unused-selector') return

@@ -19,7 +19,7 @@
     "type": "git",
     "url": "git+https://github.com/wareset/rollup-plugin-rease.git"
   },
-  "author": "cftcview <cftcview@gmail.com>",
+  "author": "rease <cftcview@gmail.com>",
   "main": "index",
   "module": "index.mjs",
   "types": "index.d.ts",
@@ -44,7 +44,7 @@
     "commit": "read -p 'Version [patch]: ' V; V=${V:-patch} && npm version --force --no-git-tag-version $V; echo $V && read -p 'Push? (y/N): ' G && read -p 'Publish? (y/N): ' P && npm run -s git:commit && case $G in Y|y) $(git push);; esac && case $P in Y|y) $(npm run -s git:set:tag && git push --tags && npm -s publish);; esac"
   },
   "peerDependencies": {
-    "less": "3.x",
+    "less": "4.x",
     "pug": "3.x",
     "sass": "1.x",
     "stylus": "0.x",
@@ -69,15 +69,15 @@
   },
   "devDependencies": {
     "dester": "0.x",
-    "less": "3.x",
+    "less": "4.x",
     "pug": "3.x",
     "sass": "1.x",
     "stylus": "0.x",
     "typescript": "4.x"
   },
   "dependencies": {
-    "rastree": "0.0.1",
-    "require-relative": "^0.8.7",
-    "@rollup/pluginutils": "^4.1.0"
+    "@rastree/compiler": "0.x",
+    "@rollup/pluginutils": "^4.1.0",
+    "require-relative": "^0.8.7"
   }
 }

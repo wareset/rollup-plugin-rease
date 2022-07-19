@@ -76,7 +76,7 @@
     "typescript": "4.x"
   },
   "dependencies": {
-    "@rastree/compiler": "0.x",
+    "rastree": "0.1.0",
     "@rollup/pluginutils": "^4.1.0",
     "require-relative": "^0.8.7"
   }

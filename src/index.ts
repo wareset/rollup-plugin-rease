@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 // import relative from 'require-relative'
 import { createFilter } from '@rollup/pluginutils'
-import { compiler } from '@rastree/compiler'
+import { compiler } from 'rastree'
 
 // const PREFIX = '[rollup-plugin-rease]'
 // const pkg_export_errors = new Set()
@@ -109,8 +109,9 @@ export default (options: { [key: string]: any } = {}): any => {
       // const svelte_options = { ...compilerOptions, filename }
 
       const compiled = compiler(code, {
-        env : options.env,
-        salt: filename
+        env   : options.env,
+        salt  : filename,
+        useJSX: /x$/.test(filename)
       })
 
       if (options.debug) {

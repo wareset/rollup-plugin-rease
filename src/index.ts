@@ -100,9 +100,9 @@ export default (options: { [key: string]: any } = {}): any => {
     // },
 
     // eslint-disable-next-line require-await
-    transform(code: string, id: string): string {
+    transform(code: string, id: string): string | null {
       if (!filter(id)) return null
-      if (!extensions.some((v) => id.endsWith(v))) return null
+      if (!extensions.some((v: string) => id.endsWith(v))) return null
       console.log(id)
       // const dependencies = []
       const filename = path.relative(process.cwd(), id)

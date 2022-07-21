@@ -32,7 +32,6 @@
     "index.mjs"
   ],
   "scripts": {
-    "test": "jest --",
     "dester": "dester ./src ./",
     "build": "npm run -s dester -- -m",
     "dev": "npm run -s dester -- -w --no-r",

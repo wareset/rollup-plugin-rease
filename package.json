@@ -1,9 +1,6 @@
 {
   "name": "rollup-plugin-rease",
-  "version": "0.1.0",
-  "publishConfig": {
-    "access": "public"
-  },
+  "version": "0.2.0",
   "description": "WIP: Rease-compiler with Rollup",
   "keywords": [
     "rollup",
@@ -26,56 +23,22 @@
   "files": [
     "LICENSE",
     "README.md",
-    "__types__",
     "index.d.ts",
     "index.js",
-    "index.mjs"
+    "index.mjs",
+    "types"
   ],
   "scripts": {
-    "dester": "dester ./src ./",
+    "dester": "dester ./src ./ -t types",
     "build": "npm run -s dester -- -m",
-    "dev": "npm run -s dester -- -w --no-r",
-    "pkg:name": "cat package.json | grep '\"name\":' | cut -d '\"' -f4",
-    "pkg:version": "cat package.json | grep '\"version\":' | cut -d '\"' -f4",
-    "git:get:tag": "echo $(npm run -s pkg:name)@$(npm run -s pkg:version)",
-    "git:set:tag": "t=$(npm run -s git:get:tag) && git tag -a $t -m $t",
-    "git:commit": "npm run -s build && git add . && read -p 'Commit: ' c; c=${c:-v$(npm run -s pkg:version)} && n=$(npm run -s pkg:name) && git commit -m \"$n: $c\"",
-    "commit": "read -p 'Version [patch]: ' V; V=${V:-patch} && npm version --force --no-git-tag-version $V; echo $V && read -p 'Push? (y/N): ' G && read -p 'Publish? (y/N): ' P && npm run -s git:commit && case $G in Y|y) $(git push);; esac && case $P in Y|y) $(npm run -s git:set:tag && git push --tags && npm -s publish);; esac"
-  },
-  "peerDependencies": {
-    "less": "4.x",
-    "pug": "3.x",
-    "sass": "1.x",
-    "stylus": "0.x",
-    "typescript": "4.x"
-  },
-  "peerDependenciesMeta": {
-    "typescript": {
-      "optional": true
-    },
-    "pug": {
-      "optional": true
-    },
-    "less": {
-      "optional": true
-    },
-    "sass": {
-      "optional": true
-    },
-    "stylus": {
-      "optional": true
-    }
+    "dev": "npm run -s dester -- -w --no-r -m"
   },
   "devDependencies": {
     "dester": "0.x",
-    "less": "4.x",
-    "pug": "3.x",
-    "sass": "1.x",
-    "stylus": "0.x",
     "typescript": "4.x"
   },
   "dependencies": {
-    "rastree": "^0.1.0",
-    "@rollup/pluginutils": "^4.1.0"
+    "rastree": "^0.2.0",
+    "@rollup/pluginutils": "^4.2.1"
   }
 }

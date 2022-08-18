@@ -1,18 +1,22 @@
-/* eslint-disable camelcase */
-
 import fs from 'fs'
 import path from 'path'
-import { createFilter } from '@rollup/pluginutils'
+import { createFilter, FilterPattern } from '@rollup/pluginutils'
 import { compiler } from 'rastree'
 
-export default (options: { [key: string]: any } = {}): any => {
-  const extensions = options.extensions ||
-    ['.rease', '.rease.js', '.rease.ts', '.rease.jsx', '.rease.tsx']
-  const filter = createFilter(options.include, options.exclude)
+export default ({
+  env = 'client' as 'client' | 'server',
+  debug = false as boolean | ((path: string) => boolean),
+  extensions = ['.rease.js', '.rease.ts', '.rease.jsx', '.rease.tsx'],
 
-  if (options.env !== 'server') options.env = 'client'
-
-  console.log('reaseCompilerOptions', options)
+  include = null as FilterPattern,
+  exclude = null as FilterPattern,
+} = {}): any => {
+  if (env !== 'server') env = 'client'
+  const cwd = process.cwd()
+  const filter = createFilter(include, exclude)
+  const debugFn = typeof debug === 'function'
+    ? debug
+    : (id: string): boolean => debug && id.startsWith(cwd)
 
   return {
     name: 'rollup-plugin-rease',
@@ -21,23 +25,25 @@ export default (options: { [key: string]: any } = {}): any => {
     transform(code: string, id: string): string | null {
       if (!filter(id)) return null
       if (!extensions.some((v: string) => id.endsWith(v))) return null
-      console.log(id)
-      // const dependencies = []
-      const filename = path.relative(process.cwd(), id)
-      // const svelte_options = { ...compilerOptions, filename }
+      // console.log(1, cwd)
+      // console.log(2, id)
 
       const compiled = compiler(code, {
-        env   : options.env,
-        salt  : filename,
-        useJSX: /x$/.test(filename)
+        env   : env,
+        salt  : id,
+        useJSX: !/\.[jt]s$/.test(id)
       })
 
-      if (options.debug) {
+      if (!/\bnode_modules\b/.test(id) && debugFn(id)) {
+        const filename = path.relative(cwd, id)
+
         const a = filename.split('.')
-        a.splice(-1, 0, options.env)
+        a.splice(-1, 0, env)
+        
         const data = path.parse(a.join('.'))
-        data.base = '__' + data.base
-        fs.writeFileSync(path.join(data.dir, data.base), compiled)
+        let file = path.join(data.dir, '__' + data.base)
+        if (/\.[jt]sx$/.test(file)) file = file.slice(0, -1)
+        fs.writeFileSync(file, '/* eslint-disable */\n// @ts-nocheck\n' + compiled)
       }
 
       return compiled

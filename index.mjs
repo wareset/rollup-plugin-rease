@@ -9,31 +9,30 @@ import r from "path";
 
 import { createFilter as s } from "@rollup/pluginutils";
 
-import { compiler as n } from "rastree";
+import { compiler as t } from "rastree";
 
-var t = (t = {}) => {
-    const o = t.extensions || [ ".rease", ".rease.js", ".rease.ts", ".rease.jsx", ".rease.tsx" ], l = s(t.include, t.exclude);
-    return "server" !== t.env && (t.env = "client"), console.log("reaseCompilerOptions", t), 
-    {
+var n = ({env: n = "client", debug: l = !1, extensions: i = [ ".rease.js", ".rease.ts", ".rease.jsx", ".rease.tsx" ], include: a = null, exclude: o = null} = {}) => {
+    "server" !== n && (n = "client");
+    var u = process.cwd(), p = s(a, o), c = "function" == typeof l ? l : e => l && e.startsWith(u);
+    return {
         name: "rollup-plugin-rease",
-        transform(s, i) {
-            if (!l(i)) return null;
-            if (!o.some((e => i.endsWith(e)))) return null;
-            console.log(i);
-            const a = r.relative(process.cwd(), i), p = n(s, {
-                env: t.env,
-                salt: a,
-                useJSX: /x$/.test(a)
+        transform(s, l) {
+            if (!p(l)) return null;
+            if (!i.some((e => l.endsWith(e)))) return null;
+            var a = t(s, {
+                env: n,
+                salt: l,
+                useJSX: !/\.[jt]s$/.test(l)
             });
-            if (t.debug) {
-                const s = a.split(".");
-                s.splice(-1, 0, t.env);
-                const n = r.parse(s.join("."));
-                n.base = "__" + n.base, e.writeFileSync(r.join(n.dir, n.base), p);
+            if (!/\bnode_modules\b/.test(l) && c(l)) {
+                var o = r.relative(u, l).split(".");
+                o.splice(-1, 0, n);
+                var f = r.parse(o.join(".")), m = r.join(f.dir, "__" + f.base);
+                /\.[jt]sx$/.test(m) && (m = m.slice(0, -1)), e.writeFileSync(m, "/* eslint-disable */\n// @ts-nocheck\n" + a);
             }
-            return p;
+            return a;
         }
     };
 };
 
-export { t as default };
+export { n as default };

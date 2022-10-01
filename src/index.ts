@@ -18,13 +18,25 @@ export default ({
     ? debug
     : (id: string): boolean => debug && id.startsWith(cwd)
 
+  const cache = new Map()
+
   return {
     name: 'rollup-plugin-rease',
 
-    // eslint-disable-next-line require-await
+    // eslint-disable-next-line consistent-return, @typescript-eslint/no-unused-vars
+    resolveId(importee: any, _importer: any): any {
+      if (!filter(importee)) return null
+      if (!extensions.some((v: string) => importee.endsWith(v))) return null
+      // console.log(111, importee, _importer)
+      cache.set(importee, null)
+      return { id: importee, external: false }
+    },
+
     transform(code: string, id: string): string | null {
-      if (!filter(id)) return null
-      if (!extensions.some((v: string) => id.endsWith(v))) return null
+      if (!cache.has(id)) return null
+      // console.log(222, id)
+      // if (!filter(id)) return null
+      // if (!extensions.some((v: string) => id.endsWith(v))) return null
       // console.log(1, cwd)
       // console.log(2, id)
 

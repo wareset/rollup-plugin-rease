@@ -5,34 +5,37 @@ index.ts
 */
 import e from "fs";
 
-import r from "path";
+import s from "path";
 
-import { createFilter as s } from "@rollup/pluginutils";
+import { createFilter as r } from "@rollup/pluginutils";
 
 import { compiler as t } from "rastree";
 
-var n = ({env: n = "client", debug: l = !1, extensions: i = [ ".rease.js", ".rease.ts", ".rease.jsx", ".rease.tsx" ], include: a = null, exclude: o = null} = {}) => {
-    "server" !== n && (n = "client");
-    var u = process.cwd(), p = s(a, o), c = "function" == typeof l ? l : e => l && e.startsWith(u);
+var l = ({env: l = "client", debug: n = !1, extensions: i = [ ".rease.js", ".rease.ts", ".rease.jsx", ".rease.tsx" ], include: a = null, exclude: o = null} = {}) => {
+    "server" !== l && (l = "client");
+    var u = process.cwd(), p = r(a, o), c = "function" == typeof n ? n : e => n && e.startsWith(u), d = new Map;
     return {
         name: "rollup-plugin-rease",
-        transform(s, l) {
-            if (!p(l)) return null;
-            if (!i.some((e => l.endsWith(e)))) return null;
-            var a = t(s, {
-                env: n,
-                salt: l,
-                useJSX: !/\.[jt]s$/.test(l)
+        resolveId: (e, s) => p(e) && i.some((s => e.endsWith(s))) ? (d.set(e, null), {
+            id: e,
+            external: !1
+        }) : null,
+        transform(r, n) {
+            if (!d.has(n)) return null;
+            var i = t(r, {
+                env: l,
+                salt: n,
+                useJSX: !/\.[jt]s$/.test(n)
             });
-            if (!/\bnode_modules\b/.test(l) && c(l)) {
-                var o = r.relative(u, l).split(".");
-                o.splice(-1, 0, n);
-                var f = r.parse(o.join(".")), m = r.join(f.dir, "__" + f.base);
-                /\.[jt]sx$/.test(m) && (m = m.slice(0, -1)), e.writeFileSync(m, "/* eslint-disable */\n// @ts-nocheck\n" + a);
+            if (!/\bnode_modules\b/.test(n) && c(n)) {
+                var a = s.relative(u, n).split(".");
+                a.splice(-1, 0, l);
+                var o = s.parse(a.join(".")), p = s.join(o.dir, "__" + o.base);
+                /\.[jt]sx$/.test(p) && (p = p.slice(0, -1)), e.writeFileSync(p, "/* eslint-disable */\n// @ts-nocheck\n" + i);
             }
-            return a;
+            return i;
         }
     };
 };
 
-export { n as default };
+export { l as default };

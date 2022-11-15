@@ -1,39 +1,36 @@
 /* eslint-disable */
-/*
-dester builds:
-index.ts
-*/
-import e from "fs";
+import { relative as e, parse as t, join as s } from "path";
 
-import t from "path";
+import { writeFileSync as n } from "fs";
 
 import { createFilter as r } from "@rollup/pluginutils";
 
-import { compiler as s } from "rastree";
+import { compiler as l } from "rastree";
 
-var n = ({env: n = "client", debug: l = !1, extensions: i = [ ".rease", ".js", ".ts", ".jsx", ".tsx" ], include: o = null, exclude: u = null} = {}) => {
-    "server" !== n && (n = "client");
-    var a = process.cwd(), p = r(o, u), f = "function" == typeof l ? l : e => l && e.startsWith(a);
+function i({env: i = "client", debug: o = !1, extensions: u = [ ".rease", ".js", ".ts", ".jsx", ".tsx" ], include: c = null, exclude: f = null} = {}) {
+    "server" !== i && (i = "client");
+    const p = process.cwd(), a = r(c, f), m = "function" == typeof o ? o : e => o && e.startsWith(p);
     return {
         name: "rollup-plugin-rease",
-        transform(r, l) {
-            if (!p(l)) return null;
-            if (!i.some((e => l.endsWith(e)))) return null;
-            if (/\.[tj]s$/.test(l) && r.indexOf("rease/env") < 0) return null;
-            var o = s(r, {
-                env: n,
-                salt: l,
-                useJSX: !/\.[jt]s$/.test(l)
+        transform(r, o) {
+            if (!a(o)) return null;
+            if (!u.some((e => o.endsWith(e)))) return null;
+            if (/\.[tj]s$/.test(o) && r.indexOf("rease/env") < 0) return null;
+            const c = l(r, {
+                env: i,
+                salt: o,
+                useJSX: !/\.[jt]s$/.test(o)
             });
-            if (!/\bnode_modules\b/.test(l) && f(l)) {
-                var u = t.relative(a, l).split(".");
-                u.splice(-1, 0, n);
-                var c = t.parse(u.join(".")), m = t.join(c.dir, "__" + c.base);
-                /\.[jt]sx$/.test(m) && (m = m.slice(0, -1)), e.writeFileSync(m, "/* eslint-disable */\n// @ts-nocheck\n" + o);
+            if (!/\bnode_modules\b/.test(o) && m(o)) {
+                const r = e(p, o).split(".");
+                r.splice(-1, 0, i);
+                const l = t(r.join("."));
+                let u = s(l.dir, "__" + l.base);
+                /\.[jt]sx$/.test(u) && (u = u.slice(0, -1)), n(u, "/* eslint-disable */\n// @ts-nocheck\n" + c);
             }
-            return o;
+            return c;
         }
     };
-};
+}
 
-export { n as default };
+export { i as default };

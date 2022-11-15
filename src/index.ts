@@ -1,16 +1,21 @@
-import fs from 'fs'
-import path from 'path'
+import {
+  join as path_join,
+  parse as path_parse,
+  relative as path_relative,
+} from 'path'
+import { writeFileSync as fs_writeFileSync } from 'fs'
+
 import { createFilter, FilterPattern } from '@rollup/pluginutils'
 import { compiler } from 'rastree'
 
-export default ({
+export default function({
   env = 'client' as 'client' | 'server',
   debug = false as boolean | ((path: string) => boolean),
   extensions = ['.rease', '.js', '.ts', '.jsx', '.tsx'],
 
   include = null as FilterPattern,
   exclude = null as FilterPattern,
-} = {}): any => {
+} = {}): any {
   if (env !== 'server') env = 'client'
   const cwd = process.cwd()
   const filter = createFilter(include, exclude)
@@ -47,15 +52,15 @@ export default ({
       })
 
       if (!/\bnode_modules\b/.test(id) && debugFn(id)) {
-        const filename = path.relative(cwd, id)
+        const filename = path_relative(cwd, id)
 
         const a = filename.split('.')
         a.splice(-1, 0, env)
         
-        const data = path.parse(a.join('.'))
-        let file = path.join(data.dir, '__' + data.base)
+        const data = path_parse(a.join('.'))
+        let file = path_join(data.dir, '__' + data.base)
         if (/\.[jt]sx$/.test(file)) file = file.slice(0, -1)
-        fs.writeFileSync(file, '/* eslint-disable */\n// @ts-nocheck\n' + compiled)
+        fs_writeFileSync(file, '/* eslint-disable */\n// @ts-nocheck\n' + compiled)
       }
 
       return compiled

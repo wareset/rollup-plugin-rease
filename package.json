@@ -19,26 +19,33 @@
   "author": "rease <cftcview@gmail.com>",
   "main": "index",
   "module": "index.mjs",
-  "types": "index.d.ts",
+  "types": "types/index.d.ts",
   "files": [
     "LICENSE",
     "README.md",
     "index.d.ts",
     "index.js",
     "index.mjs",
-    "types"
+    "types/**/*"
   ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./types/index.d.ts"
+    }
+  },
   "scripts": {
-    "dester": "dester ./src ./ -t types",
-    "build": "npm run -s dester -- -m",
-    "dev": "npm run -s dester -- -w --no-r -m"
+    "build": "dester",
+    "dev": "dester -m"
   },
   "devDependencies": {
-    "dester": "0.x",
-    "typescript": "4.x"
+    "dester": "1.0.x",
+    "typescript": "^4.8.4"
   },
   "dependencies": {
-    "rastree": "0.2.x",
-    "@rollup/pluginutils": "^4.2.1"
+    "@rollup/pluginutils": "^5.0.2",
+    "rastree": "0.2.x"
   }
 }

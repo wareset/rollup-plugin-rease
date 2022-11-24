@@ -41,7 +41,7 @@ export default function({
       // if (!cache.has(id)) return null
       if (!filter(id)) return null
       if (!extensions.some((v: string) => id.endsWith(v))) return null
-      if (/\.[tj]s$/.test(id) && code.indexOf('rease/env') < 0) return null
+      if (/\.[tj]s$/.test(id) && !/\brease\/(?:env|css|jsx)\b/.test(code)) return null
       // console.log(1, cwd)
       // console.log(2, id)
 

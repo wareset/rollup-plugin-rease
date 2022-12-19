@@ -1,2 +1,3 @@
 # rollup-plugin-rease
-WIP: Rease-compiler with Rollup
+
+wip: rease-compiler for Rollup
